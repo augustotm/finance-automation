@@ -4,13 +4,18 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import time
+from pathlib import Path
 from engine import convert_default, convert_percentage, fundamentus_fii_net_equity
 
 ###
 ### Get environment variables
 ###
 print("Loading environment variables")
-load_dotenv()
+# load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
+### .env file in the same folder as .py
+env_path = Path(__file__).parent / ".env.fundstatus"
+load_dotenv(dotenv_path=env_path, override=True)
+
 download_path = os.getenv("DOWNLOAD_PATH")
 destination_path = os.getenv("DESTINATION_PATH")
 fundamentus_url = os.getenv("FUNDAMENTUS_URL")
