@@ -10,7 +10,7 @@ from engine import convert_default, convert_percentage, fundamentus_fii_net_equi
 ###
 ### Get environment variables
 ###
-print("Loading environment variables")
+print("### Loading environment variables")
 # load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
 ### .env file in the same folder as .py
 env_path = Path(__file__).parent / ".env.fundstatus"
@@ -21,7 +21,9 @@ destination_path = os.getenv("DESTINATION_PATH")
 fundamentus_url = os.getenv("FUNDAMENTUS_URL")
 output_file_name = os.getenv("FII_FUNDAMENTUS_SHEET_NAME")
 
+###
 ### Connect to Fundamentus
+###
 print("### Connecting to Fundamentus")
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
@@ -32,12 +34,16 @@ soup = BeautifulSoup(response.content, 'html.parser')
 
 print("### Get data from Fundamentus")
 
+###
 ### Get table from Fundamentus
+###
 table = soup.find('table')
 ### Get rows from table
 rows = table.find_all('tr')
 
+###
 ### Define columns to get
+###
 dict_columns = {
     'papel'              : 'text',
     'segmento'           : 'text',
@@ -55,11 +61,15 @@ dict_columns = {
     "endereco"           : 'text'
 }
 
+###
 ### Create empty dataframe to fill
+###
 print("### Create empty dataframe")
 df = pd.DataFrame(columns=list(dict_columns.keys()))
 
+###
 ### Iterate data from each unformatted row
+###
 print("### Fill dataframe")
 for i, row in enumerate(rows):
     
@@ -80,7 +90,9 @@ for i, row in enumerate(rows):
             ### Fill dataframe cell with value
             df.iloc[i-1, j] = cell
 
+###
 ### Convert numeric and percentage columns
+###
 print("### Converting numeric and percentage columns")
 for key, value in dict_columns.items():
     if value == 'number':
@@ -89,25 +101,35 @@ for key, value in dict_columns.items():
         df[key] = convert_percentage(df[key])
 print("### Columns converted")
 
+###
 ### Create new empty column to fill net equity data
+###
 df["patrimonio_liquido"] = ""
 
+###
 ### Filter only not empty tickers
+###
 df = df[df['papel'].notna()]
 
 st = time.time()
 
+###
 ### Get net equity from Fundamentus
+###
 fundamentus_fii_net_equity(df, df.columns.get_loc("patrimonio_liquido"))
 
+###
 ### Convert column to number
+###
 df["patrimonio_liquido"] = convert_default(df["patrimonio_liquido"])
 
 et = time.time()
 
 print("### Execution time: {:.2f} seg / {:.2f} min".format(et - st, (et - st)/60))
 
+###
 ### Save file to Excel
+###
 df.to_excel(destination_path + output_file_name + ".xlsx", index=False)
 
 print("### Excel created")

@@ -44,11 +44,11 @@ def convert_percentage(column):
     return column
 
 ##############################
-### FII Functions
+### Fundamentus Functions
 ##############################
 
 #####
-### Convert text to percentage
+### Funtion to get net equity data and add to dataframe column
 #####
 
 def fundamentus_fii_net_equity(df, column_number):
@@ -79,3 +79,55 @@ def fundamentus_fii_net_equity(df, column_number):
         print("{} / {}".format(ticker, cell))
         
         df.iloc[i,column_number] = cell
+
+#####
+### Funtion to get net equity data and add to dataframe column
+#####
+
+def fundamentus_additional_data(df, sector_col, subsector_col, ticker_complet_col, ticker_type_col):
+
+    ### Iterate ticker by ticker
+    for i in range(df.shape[0]):
+
+        ### Get data from ticker
+        ticker = df.iloc[i,0]
+        url_detailed = "https://www.fundamentus.com.br/detalhes.php?papel=" + ticker
+
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+        }
+
+        response = requests.get(url_detailed, headers=headers)
+        soup = BeautifulSoup(response.content, 'html.parser')
+
+        tables = soup.findAll("table")
+
+        ### Get information from table
+        if len(tables) != 0:
+            rows = tables[0].find_all('tr')
+            
+            if len(rows) > 3:
+                
+                ### Get Sector
+                columns = rows[3].find_all('td')
+                setor = columns[1].get_text().strip()
+
+                ### Get SubSector
+                columns = rows[4].find_all('td')
+                subsetor = columns[1].get_text().strip()
+
+                ### Get complete ticker
+                columns = rows[2].find_all('td')
+                ticker_completo = columns[1].get_text().strip()
+
+                ### Get ticker type
+                columns = rows[1].find_all('td')
+                tipo_ticker = columns[1].get_text().strip()
+
+                print("{} / {} / {} / {} / {}".format(ticker, setor, subsetor, ticker_completo, tipo_ticker))
+
+                ### Write output in dataframe columns
+                df.iloc[i,sector_col] = setor
+                df.iloc[i,subsector_col] = subsetor
+                df.iloc[i,ticker_complet_col] = ticker_completo
+                df.iloc[i,ticker_type_col] = tipo_ticker
