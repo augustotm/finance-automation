@@ -5,12 +5,27 @@ from selenium import webdriver
 from time import sleep
 import pandas as pd
 import time
+import logging
 from engine import convert_default, convert_percentage, fundamentus_additional_data
+
+###
+### Start Logging
+###
+script_dir = os.path.dirname(os.path.abspath(__file__))
+log_path = os.path.join(script_dir, 'app_status.log')
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(log_path, mode='w'),  # Sobrescreve o arquivo
+        logging.StreamHandler()
+    ]
+)
 
 ###
 ### Get environment variables
 ###
-print("### Loading environment variables")
+logging.info("### Loading environment variables")
 ### .env file in the same folder as .py
 env_path = Path(__file__).parent / ".env.fundstatus"
 load_dotenv(dotenv_path=env_path, override=True)
@@ -69,7 +84,7 @@ else:
 ###
 ### Read csv file and define percentage columns
 ###
-print("\n### Read csv")
+logging.info("\n### Read csv")
 df = pd.read_csv(destination_csv_file, sep=';')
 n_col = df.shape[1]
 
@@ -80,7 +95,7 @@ percentage = ["DY", "MARGEM BRUTA", "MARGEM EBIT",
 ###
 ### Treat columns from text to number/percentage
 ###
-print("### Treat columns")
+logging.info("### Treat columns")
 for i in range(1, n_col):
     # print("@ Column name: {} | {}".format(i, df.columns[i]))
     if df.columns[i] in percentage:
@@ -91,7 +106,7 @@ for i in range(1, n_col):
 ###
 ### Add other informations using Fundamentus
 ###
-print("### Complement with sector and subsector")
+logging.info("### Complement with sector and subsector")
 df["SETOR"] = ""
 df["SUBSETOR"] = ""
 df["TICKER COMPLETO"] = ""
@@ -107,19 +122,19 @@ fundamentus_additional_data(df,
                             )
 
 et = time.time()
-print("### Additional information finished")
-print("### Execution time: {:.2f} seg / {:.2f} min".format(et - st, (et - st)/60))
+logging.info("### Additional information finished")
+logging.info("### Execution time: {:.2f} seg / {:.2f} min".format(et - st, (et - st)/60))
 
 ###
 ### Save dataframe to xlsx
 ###
-print("### Save xlsx file")
+logging.info("### Save xlsx file")
 df.to_excel(destination_path + output_file_name + ".xlsx", index=False)
 
-print("### Remove csv file")
+logging.info("### Remove csv file")
 if os.path.exists(destination_csv_file):
     os.remove(destination_csv_file)
 
-print("#####################")
-print("### Process finished!")
-print("#####################")
+logging.info("#####################")
+logging.info("### Process finished!")
+logging.info("#####################")

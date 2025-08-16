@@ -5,13 +5,27 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import time
 from pathlib import Path
+import logging
 from engine import convert_default, convert_percentage, fundamentus_fii_net_equity
+
+###
+### Start Logging
+###
+script_dir = os.path.dirname(os.path.abspath(__file__))
+log_path = os.path.join(script_dir, 'app_fund.log')
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(log_path, mode='w'),  # Sobrescreve o arquivo
+        logging.StreamHandler()
+    ]
+)
 
 ###
 ### Get environment variables
 ###
-print("### Loading environment variables")
-# load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
+logging.info('### Loading environment variables')
 ### .env file in the same folder as .py
 env_path = Path(__file__).parent / ".env.fundstatus"
 load_dotenv(dotenv_path=env_path, override=True)
@@ -24,15 +38,15 @@ output_file_name = os.getenv("FII_FUNDAMENTUS_SHEET_NAME")
 ###
 ### Connect to Fundamentus
 ###
-print("### Connecting to Fundamentus")
+logging.info('### Connecting to Fundamentus')
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
 }
 
-response = requests.get(fundamentus_url, headers=headers)
+response = requests.get(fundamentus_url, headers=headers, timeout=30)
 soup = BeautifulSoup(response.content, 'html.parser')
 
-print("### Get data from Fundamentus")
+logging.info('### Get data from Fundamentus')
 
 ###
 ### Get table from Fundamentus
@@ -64,13 +78,13 @@ dict_columns = {
 ###
 ### Create empty dataframe to fill
 ###
-print("### Create empty dataframe")
+logging.info('### Create empty dataframe')
 df = pd.DataFrame(columns=list(dict_columns.keys()))
 
 ###
 ### Iterate data from each unformatted row
 ###
-print("### Fill dataframe")
+logging.info('### Fill dataframe by iterating row by row')
 for i, row in enumerate(rows):
     
     ### Create a new empty row in dataframe to be filled
@@ -93,13 +107,13 @@ for i, row in enumerate(rows):
 ###
 ### Convert numeric and percentage columns
 ###
-print("### Converting numeric and percentage columns")
+logging.info('### Converting numeric and percentage columns')
 for key, value in dict_columns.items():
     if value == 'number':
         df[key] = convert_default(df[key])
     if value == 'percentage':
         df[key] = convert_percentage(df[key])
-print("### Columns converted")
+logging.info('### Columns converted')
 
 ###
 ### Create new empty column to fill net equity data
@@ -125,11 +139,11 @@ df["patrimonio_liquido"] = convert_default(df["patrimonio_liquido"])
 
 et = time.time()
 
-print("### Execution time: {:.2f} seg / {:.2f} min".format(et - st, (et - st)/60))
+logging.info("### Execution time: {:.2f} seg / {:.2f} min".format(et - st, (et - st)/60))
 
 ###
 ### Save file to Excel
 ###
 df.to_excel(destination_path + output_file_name + ".xlsx", index=False)
 
-print("### Excel created")
+logging.info('### Excel created')

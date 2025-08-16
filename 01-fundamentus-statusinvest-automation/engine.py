@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+import logging
 
 ##############################
 ### Conversion function
@@ -12,6 +13,7 @@ from bs4 import BeautifulSoup
 
 def convert_default(column):
 
+    logging.info('# Starting conversion of "{}" from text to number'.format(column.name))
     ### Remove thousand separator
     column = column.str.replace('.', '')
     # column = column.replace('.', '', regex=False)
@@ -22,6 +24,7 @@ def convert_default(column):
     ### Convet to numer
     column = pd.to_numeric(column)
 
+    logging.info('# Number conversion finished')
     return column
 
 #####
@@ -30,6 +33,7 @@ def convert_default(column):
 
 def convert_percentage(column):
 
+    logging.info('# Starting conversion of "{}" from text to percentage'.format(column.name))
     ### Remove thousand separator
     column = column.str.replace('.', '')
 
@@ -41,6 +45,7 @@ def convert_percentage(column):
     column = pd.to_numeric(column)
     column = column/100
 
+    logging.info('# Percentage conversion finished')
     return column
 
 ##############################
@@ -76,12 +81,12 @@ def fundamentus_fii_net_equity(df, column_number):
         columns = rows[11].find_all('td')
         cell = columns[5].get_text().strip()
 
-        print("{} / {}".format(ticker, cell))
+        logging.info("{}/{}: {} / {}".format(i+1,nb_rows+1,ticker, cell))
         
         df.iloc[i,column_number] = cell
 
 #####
-### Funtion to get net equity data and add to dataframe column
+### Funtion to get addititonal data and add to dataframe column
 #####
 
 def fundamentus_additional_data(df, sector_col, subsector_col, ticker_complet_col, ticker_type_col):
@@ -124,7 +129,7 @@ def fundamentus_additional_data(df, sector_col, subsector_col, ticker_complet_co
                 columns = rows[1].find_all('td')
                 tipo_ticker = columns[1].get_text().strip()
 
-                print("{} / {} / {} / {} / {}".format(ticker, setor, subsetor, ticker_completo, tipo_ticker))
+                logging.info("{} / {} / {} / {} / {}".format(ticker, setor, subsetor, ticker_completo, tipo_ticker))
 
                 ### Write output in dataframe columns
                 df.iloc[i,sector_col] = setor
