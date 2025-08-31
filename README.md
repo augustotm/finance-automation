@@ -36,16 +36,16 @@ You need to create a `.env.tkinter` file to define environment variables.
 2. Create the following variables. These variables define the default values that the calculator will set.
 
 ```ini
-INVEST_INICIAL=410000
-APORTE_MENSAL=4500
-PLR_ANUAL=5000
-BONUS_ANUAL=55000
+INVEST_INICIAL=0
+APORTE_MENSAL=1000
+PLR_ANUAL=10000
+BONUS_ANUAL=20000
 INTEREST_ANUAL=0.09
 INFLATION_ANUAL=0.045
 LIST_TEMPO=Ano
 QTD_TEMPO=10
 GRANUL_TEMPO=Idade
-NASC_DIA=30
-NASC_MES=08
-NASC_ANO=1995
+NASC_DIA=01
+NASC_MES=01
+NASC_ANO=1999
 ```
