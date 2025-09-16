@@ -134,7 +134,7 @@ def etl_statusinvest_acao():
     ###
     ### Save dataframe to xlsx
     ###
-    logging.info("### Save xlsx file")
+    logging.info('### Saving {}.xlsx on {}'.format(output_file_name, destination_path))
     df.to_excel(destination_path + output_file_name + ".xlsx", index=False)
 
     logging.info("### Remove csv file")

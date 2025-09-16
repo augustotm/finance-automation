@@ -153,6 +153,7 @@ def etl_fundamentus_fii():
     df.to_excel(destination_path + output_file_name + ".xlsx", index=False)
 
     logging.info('### Excel created')
+    logging.info('### Saving {}.xlsx on {}'.format(output_file_name, destination_path))
 
     logging.info("##############################################")
     logging.info("### FII (Fundamentus) processing finished! ###")

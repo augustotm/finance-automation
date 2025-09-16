@@ -91,8 +91,11 @@ def fundamentus_fii_net_equity(df, column_number):
 
 def fundamentus_additional_data(df, sector_col, subsector_col, ticker_complet_col, ticker_type_col):
 
+    ### Get number of rows
+    nb_rows = df.shape[0]
+
     ### Iterate ticker by ticker
-    for i in range(df.shape[0]):
+    for i in range(nb_rows):
 
         ### Get data from ticker
         ticker = df.iloc[i,0]
@@ -129,7 +132,7 @@ def fundamentus_additional_data(df, sector_col, subsector_col, ticker_complet_co
                 columns = rows[1].find_all('td')
                 tipo_ticker = columns[1].get_text().strip()
 
-                logging.info("{} / {} / {} / {} / {}".format(ticker, setor, subsetor, ticker_completo, tipo_ticker))
+                logging.info("{}/{}: {} / {} / {} / {} / {}".format(i+1, nb_rows+1, ticker, setor, subsetor, ticker_completo, tipo_ticker))
 
                 ### Write output in dataframe columns
                 df.iloc[i,sector_col] = setor
